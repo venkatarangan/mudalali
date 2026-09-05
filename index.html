@@ -1,0 +1,1387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mudalali — முதலாளி | A Tamil Nadu Property Game</title>
+<meta name="description" content="A free Tamil Nadu–themed property board game. Roll the dice, buy Marina Beach and Madurai, collect rent, and become the Mudalali! 2–4 players, pass and play.">
+<link rel="icon" type="image/png" href="mudalali-icon-180.png">
+<link rel="apple-touch-icon" href="mudalali-icon-180.png">
+<!-- Social preview (Open Graph + Twitter). mudalali-og.png sits next to this file. -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Mango Idiots">
+<meta property="og:title" content="Mudalali — முதலாளி | A Tamil Nadu Property Game">
+<meta property="og:description" content="A free Tamil Nadu–themed property board game. Roll the dice, buy Marina Beach and Madurai, collect rent, and become the Mudalali!">
+<meta property="og:url" content="https://mudalali.mangoidiots.com/">
+<meta property="og:image" content="https://mudalali.mangoidiots.com/mudalali-og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Mudalali — A Tamil Nadu Property Game">
+<meta name="twitter:description" content="Roll the dice, buy Marina Beach and Madurai, collect rent, and become the Mudalali! Free to play.">
+<meta name="twitter:image" content="https://mudalali.mangoidiots.com/mudalali-og.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anek+Tamil:wght@500;700;800&family=Noto+Sans+Tamil:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --kaapi:#2e1f16;
+  --pal:#fffdf6;
+  --pal-2:#f6efdd;
+  --manjal:#e8a413;
+  --manjal-d:#c98b07;
+  --kumkum:#b0301a;
+  --kumkum-d:#8e2412;
+  --ilai:#2f6b3c;
+  --neelam:#28567e;
+  --ink:#2b211a;
+  --line:#ece3cf;
+  --g-heritage:#8c5a2b;
+  --g-temple:#d4691e;
+  --g-hills:#2f6b3c;
+  --g-industry:#28567e;
+  --g-chennai:#b0301a;
+  --g-rail:#4a4038;
+  --g-util:#2a7f7a;
+  --p1:#b0301a; --p2:#2f6b3c; --p3:#28567e; --p4:#7d3c98;
+  --disp:'Anek Tamil',sans-serif;
+  --body:'Noto Sans Tamil','Anek Tamil',sans-serif;
+  --shadow-card:0 10px 30px rgba(46,31,22,.08);
+  --shadow-pop:0 24px 70px rgba(46,31,22,.30);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:var(--body);
+  color:var(--ink);
+  background:
+    radial-gradient(circle at 18% 6%, rgba(232,164,19,.05), transparent 42%),
+    radial-gradient(rgba(46,31,22,.035) 1px, transparent 1.3px) 0 0/26px 26px,
+    #fbfaf6;
+  min-height:100%;
+  padding:12px;
+}
+/* mobile-first column layout */
+.app{display:flex;flex-direction:column;gap:16px;align-items:center;max-width:1280px;margin:0 auto}
+@media (min-width:1080px){
+  body{padding:24px}
+  .app{flex-direction:row;justify-content:center;align-items:flex-start;gap:26px;flex-wrap:wrap}
+  .side{max-width:410px}
+}
+
+/* ============ BOARD ============ */
+.board-wrap{flex:0 1 auto;width:min(100%,96vmin,740px)}
+.board{
+  width:100%;aspect-ratio:1;
+  display:grid;
+  grid-template-columns:1.5fr repeat(6,1fr) 1.5fr;
+  grid-template-rows:1.5fr repeat(6,1fr) 1.5fr;
+  background:var(--manjal);              /* golden grout between tiles */
+  border:7px solid var(--kumkum);
+  border-radius:14px;
+  box-shadow:0 18px 50px rgba(46,31,22,.22), 0 2px 0 4px rgba(232,164,19,.55);
+  gap:3px;padding:3px;
+}
+.tile{
+  background:var(--pal);
+  position:relative;
+  display:flex;flex-direction:column;
+  font-size:clamp(6.5px,1.05vmin,10.5px);
+  line-height:1.15;
+  overflow:hidden;
+  border-radius:4px;
+  cursor:pointer;
+}
+.tile:hover{box-shadow:inset 0 0 0 2px var(--manjal-d)}
+.tile .band{height:13%;min-height:7px;width:100%;flex:0 0 auto}
+.tile .tname{
+  font-family:var(--disp);font-weight:800;
+  padding:2.5px 2px 0;text-align:center;letter-spacing:.01em;
+  text-transform:uppercase;font-size:1em;
+}
+.tile .art{flex:1 1 auto;min-height:0;display:flex;align-items:flex-end}
+.tile .art svg{width:100%;height:100%;display:block}
+.tile .tprice{
+  flex:0 0 auto;text-align:center;padding:1px 0 2.5px;font-weight:700;font-size:.95em;
+  background:rgba(246,239,221,.85);
+}
+.tile.corner{cursor:pointer}
+.tile.corner .tname{font-size:1.02em}
+.tile.corner .csub{font-size:.8em;opacity:.75;text-align:center;padding:0 2px 2px}
+.tile .owner{
+  position:absolute;top:0;right:0;width:0;height:0;
+  border-style:solid;border-width:0 16px 16px 0;
+  filter:drop-shadow(-1px 1px 1px rgba(0,0,0,.25));
+  z-index:2;
+}
+.tile.cur{
+  z-index:2;
+  animation:curpulse 1.3s ease-in-out infinite;
+}
+@keyframes curpulse{
+  0%,100%{box-shadow:inset 0 0 0 3px var(--kumkum), 0 0 0 3px var(--kumkum), 0 0 12px rgba(176,48,26,.55)}
+  50%{box-shadow:inset 0 0 0 3px var(--kumkum), 0 0 0 5px rgba(176,48,26,.5), 0 0 22px rgba(176,48,26,.75)}
+}
+.tile.stepflash{animation:stepflash .4s ease-out}
+@keyframes stepflash{
+  0%{background:#ffe27a;box-shadow:inset 0 0 0 3px var(--manjal), 0 0 14px rgba(232,164,19,.8)}
+  100%{background:var(--pal)}
+}
+.tokens{
+  position:absolute;bottom:26%;left:1px;right:1px;
+  display:flex;flex-wrap:wrap;gap:1px;justify-content:center;
+  pointer-events:none;z-index:3;
+}
+.tok{
+  font-size:clamp(10px,1.7vmin,16px);
+  filter:drop-shadow(0 2px 2px rgba(0,0,0,.45));
+  animation:hop .25s cubic-bezier(.3,1.6,.5,1);
+}
+@keyframes hop{0%{transform:translateY(-7px) scale(1.25)}100%{transform:translateY(0) scale(1)}}
+
+/* ============ CENTRE ============ */
+.centre{
+  grid-area:2/2/8/8;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:1.1vmin;text-align:center;position:relative;
+  background:
+    radial-gradient(rgba(46,31,22,.13) 1.3px, transparent 1.6px) 0 0/22px 22px,
+    linear-gradient(150deg,#fdf8ea,var(--pal-2));
+  border-radius:8px;overflow:hidden;
+  box-shadow:inset 0 0 0 2px var(--kumkum), inset 0 0 0 7px #fdf8ea, inset 0 0 0 9px var(--manjal);
+}
+.centre .kolam{position:absolute;inset:0;opacity:.08;pointer-events:none}
+.title-ta{
+  font-family:var(--disp);font-weight:800;color:var(--kumkum);
+  font-size:clamp(26px,7vmin,58px);line-height:1.05;
+  text-shadow:2.5px 2.5px 0 var(--manjal);
+}
+.title-en{
+  font-family:var(--disp);font-weight:700;letter-spacing:.42em;
+  font-size:clamp(10px,1.9vmin,16px);color:var(--kaapi);text-transform:uppercase;margin-left:.42em;
+}
+.tagline{font-size:clamp(8px,1.5vmin,12.5px);opacity:.7;max-width:72%}
+.turn-label{
+  font-family:var(--disp);font-weight:700;
+  font-size:clamp(11px,2.2vmin,17px);
+  padding:3px 16px;border-radius:99px;color:var(--pal);
+  background:var(--kaapi);box-shadow:0 3px 8px rgba(46,31,22,.3);
+}
+.dice-row{display:flex;gap:1.6vmin;margin-top:.5vmin}
+.die{
+  width:clamp(40px,7.5vmin,60px);aspect-ratio:1;border-radius:18%;
+  background:linear-gradient(150deg,#ffffff,#f3e8cd);
+  border:2px solid var(--kaapi);
+  display:grid;place-items:center;
+  font-size:clamp(23px,4.6vmin,38px);font-family:var(--disp);font-weight:800;
+  color:var(--kumkum);
+  box-shadow:0 6px 12px rgba(46,31,22,.25), inset 0 -3px 0 rgba(46,31,22,.10), inset 0 2px 0 rgba(255,255,255,.9);
+}
+.die.tumble{animation:tumble .14s linear infinite}
+@keyframes tumble{
+  0%{transform:rotate(0deg) translateY(0) scale(1.06)}
+  25%{transform:rotate(16deg) translateY(-6px) scale(1.1)}
+  50%{transform:rotate(-12deg) translateY(2px) scale(1.04)}
+  75%{transform:rotate(9deg) translateY(-4px) scale(1.1)}
+  100%{transform:rotate(0deg) translateY(0) scale(1.06)}
+}
+.die.land{animation:land .4s cubic-bezier(.2,1.7,.4,1)}
+@keyframes land{
+  0%{transform:scale(1.4) rotate(10deg)}
+  55%{transform:scale(.9) rotate(-2deg)}
+  100%{transform:scale(1) rotate(0)}
+}
+
+/* ============ SIDE PANELS ============ */
+.side{
+  flex:1 1 320px;width:100%;max-width:min(96vmin,740px);min-width:280px;
+  display:flex;flex-direction:column;gap:14px;
+}
+.panel{
+  background:#fff;border:1px solid var(--line);border-radius:18px;
+  box-shadow:var(--shadow-card);
+  padding:20px;
+}
+.panel h2{
+  font-family:var(--disp);font-weight:800;text-transform:uppercase;
+  letter-spacing:.13em;font-size:13px;color:var(--kumkum);
+  display:flex;align-items:center;gap:10px;margin-bottom:14px;
+}
+.panel h2::after{content:'';flex:1;height:1.5px;background:linear-gradient(90deg,var(--manjal),transparent)}
+.btn{
+  font-family:var(--disp);font-weight:700;font-size:15px;
+  border:none;border-radius:13px;padding:13px 20px;cursor:pointer;
+  background:linear-gradient(140deg,#c63d20,var(--kumkum-d));color:#fff;letter-spacing:.04em;
+  box-shadow:0 6px 16px rgba(176,48,26,.35), inset 0 1px 0 rgba(255,255,255,.25);
+  transition:transform .1s, box-shadow .1s, filter .1s;
+  text-transform:uppercase;
+}
+.btn:hover{transform:translateY(-1.5px);filter:brightness(1.05)}
+.btn:active{transform:translateY(1px);box-shadow:0 2px 6px rgba(176,48,26,.3)}
+.btn:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none}
+.btn.alt{background:linear-gradient(140deg,#37804a,#235430);box-shadow:0 6px 16px rgba(47,107,60,.35), inset 0 1px 0 rgba(255,255,255,.25)}
+.btn.ghost{background:#f3efe4;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line)}
+.btn.ghost:hover{background:#ece6d6}
+.btn.gold{background:linear-gradient(140deg,#f0b32a,var(--manjal-d));color:#3a2a08;box-shadow:0 6px 16px rgba(232,164,19,.4), inset 0 1px 0 rgba(255,255,255,.45)}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.hint{font-size:13px;opacity:.75;margin-top:11px;line-height:1.5}
+.iconbtn{
+  width:46px;height:46px;border-radius:13px;border:1.5px solid var(--line);
+  background:#faf7ef;font-size:19px;cursor:pointer;flex:0 0 auto;
+  transition:background .1s;
+}
+.iconbtn:hover{background:#f1ecdd}
+
+/* player cards */
+.pcards{display:flex;flex-direction:column;gap:9px}
+.pcard{
+  display:flex;align-items:center;gap:12px;position:relative;
+  background:#fbf8f0;border:1.5px solid var(--line);border-radius:15px;padding:10px 14px;
+  transition:border-color .15s, box-shadow .15s;
+}
+.pcard.active{border-color:var(--pc);box-shadow:0 4px 14px rgba(46,31,22,.10);background:#fff}
+.pcard.out{opacity:.38}
+.pcard.out .pname{text-decoration:line-through}
+.avatar{
+  width:42px;height:42px;border-radius:50%;flex:0 0 auto;
+  display:grid;place-items:center;font-size:21px;
+  background:#fdf3da;border:2.5px solid var(--pc,#999);
+  box-shadow:inset 0 -3px 0 rgba(0,0,0,.06);
+}
+.pcard .pmeta{flex:1;min-width:0}
+.pcard .pname{font-family:var(--disp);font-weight:700;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pcard .pprops{font-size:11.5px;opacity:.62;margin-top:1px}
+.pcard .pcash{font-family:var(--disp);font-weight:800;font-size:15.5px;white-space:nowrap}
+.jail-tag{font-size:10px;background:var(--kaapi);color:var(--pal);border-radius:5px;padding:1px 7px;margin-left:6px;vertical-align:middle}
+.cashfloat{
+  position:absolute;right:14px;top:6px;font-family:var(--disp);font-weight:800;font-size:14px;
+  pointer-events:none;animation:rise 1.1s forwards;
+}
+@keyframes rise{0%{opacity:0;transform:translateY(6px)}15%{opacity:1}100%{opacity:0;transform:translateY(-24px)}}
+
+/* log */
+.log{max-height:180px;overflow-y:auto;font-size:12.8px;line-height:1.5;display:flex;flex-direction:column-reverse;gap:4px}
+.log div{padding:5px 10px;border-radius:8px;background:#f7f3e8}
+.log div.hot{background:#fdeede;border-left:3px solid var(--kumkum)}
+
+/* ============ SETUP (modern) ============ */
+.setup-hero{text-align:center;margin-bottom:18px}
+.setup-hero .sh-ta{font-family:var(--disp);font-weight:800;font-size:34px;color:var(--kumkum);line-height:1.1;text-shadow:1.5px 1.5px 0 var(--manjal)}
+.setup-hero .sh-en{font-family:var(--disp);font-weight:700;letter-spacing:.4em;font-size:12px;text-transform:uppercase;margin:2px 0 6px;margin-left:.4em}
+.setup-hero .sh-sub{font-size:13px;opacity:.7}
+.flabel{
+  font-family:var(--disp);font-weight:700;font-size:12px;letter-spacing:.1em;
+  text-transform:uppercase;color:#8a7a60;margin:16px 0 8px;
+}
+.seg{display:flex;background:#f3efe3;border-radius:13px;padding:4px;gap:4px}
+.seg button{
+  flex:1;border:none;background:transparent;padding:11px 4px;border-radius:10px;
+  font-family:var(--disp);font-weight:700;font-size:13.5px;cursor:pointer;color:#6d604c;
+  transition:all .12s;white-space:nowrap;
+}
+.seg button.sel{background:#fff;color:var(--kumkum);box-shadow:0 3px 10px rgba(46,31,22,.13)}
+.prow{display:flex;align-items:center;gap:11px;margin-bottom:10px}
+.prow .avatar{cursor:default}
+.prow input{
+  flex:1;padding:12px 15px;border:1.5px solid transparent;border-radius:12px;
+  font-family:var(--body);font-size:14.5px;background:#f6f2e7;min-width:0;
+  transition:all .12s;
+}
+.prow input:focus{outline:none;border-color:var(--manjal);background:#fff;box-shadow:0 3px 10px rgba(232,164,19,.18)}
+.start-wrap{margin-top:20px}
+.start-wrap .btn{width:100%;font-size:16.5px;padding:15px}
+
+/* ============ MODAL (deed cards & events) ============ */
+.overlay{
+  position:fixed;inset:0;background:rgba(30,20,12,.55);backdrop-filter:blur(3px);
+  display:none;place-items:center;z-index:50;padding:18px;
+}
+.overlay.show{display:grid}
+.gcard{
+  width:min(400px,94vw);background:#fff;border-radius:22px;overflow:hidden;
+  box-shadow:var(--shadow-pop);
+  animation:pop .3s cubic-bezier(.2,1.4,.4,1);
+  border:1px solid var(--line);
+}
+@keyframes pop{from{transform:scale(.75) translateY(14px);opacity:0}}
+.gart{height:160px;position:relative;background:#fdf3da}
+.gart svg{width:100%;height:100%;display:block}
+.gart .gband{position:absolute;left:0;right:0;bottom:0;height:9px}
+.gart .gemoji{position:absolute;inset:0;display:grid;place-items:center;font-size:74px;filter:drop-shadow(0 6px 10px rgba(0,0,0,.18))}
+.gbody{padding:20px 22px 22px;text-align:center}
+.geyebrow{font-family:var(--disp);font-weight:800;letter-spacing:.22em;text-transform:uppercase;font-size:11.5px;color:var(--kumkum)}
+.gtitle{font-family:var(--disp);font-weight:800;font-size:25px;line-height:1.15;margin-top:3px}
+.gta{font-size:13px;color:var(--ilai);font-weight:600;margin-top:1px}
+.gtext{font-size:15px;line-height:1.55;margin-top:10px}
+.grent{margin-top:14px;text-align:left;font-size:13.5px}
+.grent .rrow{display:flex;justify-content:space-between;padding:6.5px 2px;border-bottom:1px dashed var(--line)}
+.grent .rrow b{font-family:var(--disp)}
+.grent .rrow:last-child{border-bottom:none}
+.gowner{
+  margin-top:12px;font-size:13px;font-weight:700;display:inline-block;
+  padding:5px 14px;border-radius:99px;background:#f6f1e3;border:1.5px solid var(--oc,var(--line));
+}
+.gbtns{display:flex;gap:10px;justify-content:center;margin-top:18px;flex-wrap:wrap}
+.gbtns .btn{min-width:120px}
+
+/* toast */
+.toast{
+  position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(80px);
+  background:var(--kaapi);color:var(--pal);font-size:14px;
+  padding:12px 22px;border-radius:99px;border:1.5px solid var(--manjal);
+  opacity:0;transition:all .3s;z-index:60;pointer-events:none;max-width:88vw;text-align:center;
+  box-shadow:0 10px 26px rgba(46,31,22,.35);
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.credit{
+  max-width:1280px;margin:20px auto 8px;text-align:center;
+  font-size:12.5px;color:#7d705c;
+}
+.credit a{color:var(--kumkum);font-weight:700;text-decoration:none;border-bottom:1.5px solid var(--manjal)}
+.credit a:hover{color:var(--kumkum-d)}
+details.rules{font-size:13.5px;line-height:1.6}
+details.rules summary{cursor:pointer;font-weight:700;font-family:var(--disp);color:var(--kumkum);letter-spacing:.04em}
+details.rules ul{padding-left:18px;margin-top:8px}
+details.rules li{margin-bottom:4px}
+
+/* ============ BIG START ============ */
+.big-start{
+  font-family:var(--disp);font-weight:800;
+  font-size:clamp(19px,4.2vmin,27px);letter-spacing:.14em;
+  display:flex;align-items:center;gap:.5em;
+  padding:clamp(12px,2.6vmin,17px) clamp(26px,6vmin,42px);
+  border:none;border-radius:99px;cursor:pointer;color:#3a2a08;
+  background:linear-gradient(140deg,#f6c542,#d99a06);
+  box-shadow:0 8px 24px rgba(217,154,6,.55), inset 0 2px 0 rgba(255,255,255,.55);
+  animation:startpulse 1.9s ease-in-out infinite;
+  text-transform:uppercase;
+}
+.big-start svg{width:1.15em;height:1.15em;flex:0 0 auto}
+.big-start:active{transform:scale(.96)}
+@keyframes startpulse{
+  50%{transform:scale(1.07);box-shadow:0 12px 34px rgba(217,154,6,.75), inset 0 2px 0 rgba(255,255,255,.55)}
+}
+.panel.pulse{animation:panelpulse 1.6s ease}
+@keyframes panelpulse{
+  0%,100%{box-shadow:var(--shadow-card)}
+  25%,60%{box-shadow:0 0 0 4px var(--manjal), 0 12px 34px rgba(232,164,19,.4)}
+}
+
+/* ============ MASCOT ============ */
+.mascot-wrap{
+  position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;
+  z-index:70;pointer-events:none;perspective:700px;
+}
+.mascot-wrap.show{display:flex}
+.mascot3d{
+  width:min(46vmin,210px);transform-style:preserve-3d;
+  animation:mango-show 2.6s cubic-bezier(.3,1.2,.4,1) forwards;
+  filter:drop-shadow(0 18px 22px rgba(46,31,22,.30));
+}
+.mascot3d svg{width:100%;height:auto;display:block}
+@keyframes mango-show{
+  0%{transform:scale(0) rotateY(-180deg) translateY(40px);opacity:0}
+  16%{transform:scale(1.18) rotateY(0deg) translateY(0);opacity:1}
+  26%{transform:scale(1) rotateY(0)}
+  42%{transform:rotateY(26deg) rotateZ(-4deg)}
+  58%{transform:rotateY(-26deg) rotateZ(4deg)}
+  72%{transform:rotateY(14deg) rotateZ(-2deg)}
+  84%{transform:rotateY(0) scale(1.08)}
+  92%{transform:scale(1);opacity:1}
+  100%{transform:scale(.85) translateY(14px);opacity:0}
+}
+.mascot-shadow{
+  width:min(30vmin,140px);height:16px;border-radius:50%;
+  background:rgba(46,31,22,.22);margin-top:-6px;filter:blur(4px);
+  animation:mango-shadow 2.6s ease forwards;
+}
+@keyframes mango-shadow{
+  0%{transform:scale(0);opacity:0}
+  16%{transform:scale(1.15);opacity:1}
+  26%{transform:scale(1)}
+  84%{transform:scale(1.05)}
+  100%{transform:scale(.6);opacity:0}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="board-wrap">
+    <div class="board" id="board"></div>
+  </div>
+
+  <div class="side">
+    <!-- SETUP -->
+    <div class="panel" id="setupPanel">
+      <div class="setup-hero">
+        <div class="sh-ta">முதலாளி</div>
+        <div class="sh-en">Mudalali</div>
+        <div class="sh-sub">A fun property game with places we love. <b style="color:var(--kumkum)">Free forever.</b></div>
+      </div>
+      <div class="flabel">Players</div>
+      <div class="seg" id="countPick">
+        <button data-n="2">2</button>
+        <button data-n="3" class="sel">3</button>
+        <button data-n="4">4</button>
+      </div>
+      <div class="flabel">Names</div>
+      <div id="nameRows"></div>
+      <div class="flabel">Game length</div>
+      <div class="seg" id="lenPick">
+        <button data-l="15">Quick · 15</button>
+        <button data-l="25" class="sel">Standard · 25</button>
+        <button data-l="0">No limit</button>
+      </div>
+      <div class="start-wrap">
+        <button class="btn gold" id="startBtn">Start the game</button>
+      </div>
+      <p class="hint">Everyone starts with ₹20,000. Buy properties, collect rent, and be the richest mudalali in Tamil Nadu. Tap any tile to peek at its deed.</p>
+    </div>
+
+    <!-- GAME -->
+    <div class="panel" id="gamePanel" style="display:none">
+      <h2 id="turnHeading">Your move</h2>
+      <div class="controls" id="controls">
+        <button class="btn" id="rollBtn">🎲 Roll dice</button>
+        <button class="btn" id="payJailBtn" style="display:none">Pay ₹500 &amp; roll</button>
+        <button class="btn ghost" id="tryJailBtn" style="display:none">Try for doubles</button>
+        <button class="iconbtn" id="muteBtn" title="Sound on/off">🔊</button>
+      </div>
+      <p class="hint" id="actionHint"></p>
+    </div>
+
+    <div class="panel" id="playersPanel" style="display:none">
+      <h2>Mudalalis</h2>
+      <div class="pcards" id="pcards"></div>
+    </div>
+
+    <div class="panel" id="logPanel" style="display:none">
+      <h2>Game log</h2>
+      <div class="log" id="log"></div>
+    </div>
+
+    <div class="panel">
+      <details class="rules" style="margin-bottom:14px">
+        <summary>How to play</summary>
+        <ul>
+          <li>Roll the dice and travel around Tamil Nadu.</li>
+          <li>Land on an unowned place? Its deed card appears — buy it or skip.</li>
+          <li>Land on someone's property? You pay rent. A full colour group doubles the rent.</li>
+          <li>Railway junctions earn ₹600 × junctions owned. TNEB &amp; Metro Water charge dice × ₹150 (× ₹300 with both).</li>
+          <li>Sandhippu (சந்திப்பு) tiles draw a surprise card.</li>
+          <li>In the lockup? Pay ₹500 or roll doubles (3 tries).</li>
+          <li>Bankrupt players are out; their places return to the bank.</li>
+          <li>Win by outlasting everyone — or be the richest (cash + property) when a timed game ends.</li>
+        </ul>
+      </details>
+      <details class="rules">
+        <summary>Disclaimer</summary>
+        <p style="margin-top:8px">This is a free, AI-generated game made for fun. It is intended to demonstrate what AI can create and comes with no guarantees regarding accuracy, completeness, or quality. The Tamil Nadu places, landmarks, and organisation names appearing in the game are included purely for entertainment and gameplay. No offence, endorsement, or representation is intended. All rights to names, logos, and trademarks belong to their respective owners.</p>
+      </details>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="overlay" id="overlay">
+  <div class="gcard">
+    <div class="gart" id="mArt"></div>
+    <div class="gbody">
+      <div class="geyebrow" id="mEyebrow"></div>
+      <div class="gtitle" id="mTitle"></div>
+      <div class="gta" id="mTa"></div>
+      <div class="gtext" id="mText"></div>
+      <div class="grent" id="mRent"></div>
+      <div id="mOwner"></div>
+      <div class="gbtns" id="mBtns"></div>
+    </div>
+  </div>
+</div>
+
+<div class="mascot-wrap" id="mascot" aria-hidden="true">
+  <div class="mascot3d">
+    <svg viewBox="0 0 200 215" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="mgBody" cx="38%" cy="32%" r="80%">
+          <stop offset="0%" stop-color="#ffe93d"/>
+          <stop offset="62%" stop-color="#f5d908"/>
+          <stop offset="100%" stop-color="#dcbf00"/>
+        </radialGradient>
+        <linearGradient id="mgLeaf" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#a4cf52"/>
+          <stop offset="100%" stop-color="#7faf33"/>
+        </linearGradient>
+      </defs>
+      <!-- leaves -->
+      <path d="M93 46 C 62 12 24 16 14 46 C 44 64 76 58 93 46 Z" fill="url(#mgLeaf)"/>
+      <path d="M104 42 C 116 16 142 8 158 20 C 152 44 124 54 104 42 Z" fill="#8dbf3f"/>
+      <!-- stem swirl -->
+      <path d="M116 40 C 124 30 112 24 120 10" fill="none" stroke="#1e3148" stroke-width="8" stroke-linecap="round"/>
+      <!-- mango body -->
+      <path d="M100 40 C 152 36 176 92 169 140 C 161 196 132 212 100 212 C 68 212 39 196 31 140 C 24 92 48 44 100 40 Z" fill="url(#mgBody)"/>
+      <!-- gloss -->
+      <ellipse cx="66" cy="84" rx="22" ry="14" fill="#ffffff" opacity=".30" transform="rotate(-24 66 84)"/>
+      <!-- glasses -->
+      <rect x="42" y="92" width="50" height="38" rx="15" fill="#f9e34c" stroke="#1e3148" stroke-width="9"/>
+      <rect x="108" y="92" width="50" height="38" rx="15" fill="#f9e34c" stroke="#1e3148" stroke-width="9"/>
+      <path d="M92 106 q8 -9 16 0" fill="none" stroke="#1e3148" stroke-width="9" stroke-linecap="round"/>
+      <path d="M42 104 l-9 -3 M158 104 l9 -3" stroke="#1e3148" stroke-width="8" stroke-linecap="round"/>
+      <!-- moustache -->
+      <path d="M100 152 C 90 139 70 138 61 148 C 52 158 60 173 77 169 C 88 167 96 159 100 153 C 104 159 112 167 123 169 C 140 173 148 158 139 148 C 130 138 110 139 100 152 Z" fill="#1e3148"/>
+    </svg>
+  </div>
+  <div class="mascot-shadow"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<footer class="credit">
+  Generated with Claude Fable 5 AI. Play Mudalali for free at
+  <a href="https://mudalali.mangoidiots.com" target="_blank" rel="noopener">mudalali.mangoidiots.com</a>
+</footer>
+<script>
+/* ================= SVG ART LIBRARY ================= */
+const SV = (inner, sky='#fdf3da') =>
+  `<svg viewBox="0 0 120 70" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg"><rect width="120" height="70" fill="${sky}"/>${inner}</svg>`;
+
+const ART = {
+'Marina Beach': SV(`
+  <circle cx="97" cy="15" r="9" fill="#e8a413"/>
+  <rect x="0" y="50" width="120" height="20" fill="#3f87b8"/>
+  <path d="M0 50 Q8 46 16 50 T32 50 T48 50 T64 50 T80 50 T96 50 T112 50 T128 50 V55 H0Z" fill="#5ba3cf"/>
+  <path d="M52 18 L66 18 L63 50 L55 50 Z" fill="#fffdf7" stroke="#2e1f16" stroke-width="1.4"/>
+  <rect x="53.5" y="24" width="11.5" height="5" fill="#b0301a"/>
+  <rect x="54.5" y="36" width="10" height="5" fill="#b0301a"/>
+  <rect x="49" y="11" width="20" height="7" rx="2" fill="#2e1f16"/>
+  <circle cx="59" cy="14.5" r="2.6" fill="#ffd34d"/>
+  <path d="M0 64 H120 V70 H0Z" fill="#eed9a8"/>`),
+'Madurai': SV(`
+  <path d="M38 70 L48 14 H72 L82 70 Z" fill="#d4691e"/>
+  <path d="M40 62 H80 M42 52 H78 M44 42 H76 M46 33 H74 M48 24 H72" stroke="#fdf3da" stroke-width="2"/>
+  <path d="M42 56 H78" stroke="#2f6b3c" stroke-width="3"/>
+  <path d="M45 37 H75" stroke="#b0301a" stroke-width="3"/>
+  <rect x="50" y="9" width="20" height="6" rx="3" fill="#e8a413"/>
+  <circle cx="55" cy="6" r="2.2" fill="#e8a413"/><circle cx="60" cy="5" r="2.2" fill="#e8a413"/><circle cx="65" cy="6" r="2.2" fill="#e8a413"/>
+  <path d="M55 70 L60 56 L65 70 Z" fill="#7c3a0e"/>`),
+'Thanjavur': SV(`
+  <path d="M44 70 L54 12 H66 L76 70 Z" fill="#c98b5a"/>
+  <path d="M46 60 H74 M48 50 H72 M50 40 H70 M52 31 H68 M53.5 22 H66.5" stroke="#8c5a2b" stroke-width="1.8"/>
+  <ellipse cx="60" cy="10" rx="8" ry="4.5" fill="#e8a413"/>
+  <rect x="58.6" y="2.5" width="2.8" height="5" fill="#b0301a"/>
+  <rect x="20" y="56" width="22" height="14" fill="#c98b5a"/>
+  <rect x="78" y="56" width="22" height="14" fill="#c98b5a"/>
+  <path d="M20 56 H42 M78 56 H100" stroke="#8c5a2b" stroke-width="2"/>`),
+'Mahabalipuram': SV(`
+  <rect x="0" y="52" width="120" height="18" fill="#3f87b8"/>
+  <path d="M0 52 Q10 48 20 52 T40 52 T60 52 T80 52 T100 52 T120 52 V57 H0Z" fill="#5ba3cf"/>
+  <circle cx="22" cy="14" r="8" fill="#e8a413"/>
+  <path d="M48 52 L54 16 H66 L72 52 Z" fill="#9c7148"/>
+  <path d="M50 44 H70 M52 36 H68 M53 28 H67" stroke="#7a5532" stroke-width="1.8"/>
+  <path d="M82 52 L86 32 H92 L96 52 Z" fill="#9c7148"/>
+  <rect x="58" y="44" width="4" height="8" fill="#5d3f23"/>`),
+'Rameswaram': SV(`
+  <rect x="0" y="44" width="120" height="26" fill="#3f87b8"/>
+  <path d="M0 44 Q12 40 24 44 T48 44 T72 44 T96 44 T120 44 V49 H0Z" fill="#5ba3cf"/>
+  <rect x="0" y="32" width="120" height="4" fill="#4a4038"/>
+  <path d="M8 36 v8 M28 36 v8 M48 36 v8 M68 36 v8 M88 36 v8 M108 36 v8" stroke="#4a4038" stroke-width="3"/>
+  <path d="M0 32 L14 22 L28 32 L42 22 L56 32 L70 22 L84 32 L98 22 L112 32" stroke="#6b5d50" stroke-width="2" fill="none"/>
+  <rect x="40" y="25" width="26" height="7" rx="2" fill="#b0301a"/>
+  <rect x="43" y="27" width="5" height="3" fill="#ffd34d"/><rect x="52" y="27" width="5" height="3" fill="#ffd34d"/>`),
+'Ooty': SV(`
+  <path d="M0 70 Q30 26 62 48 Q92 64 120 38 V70 Z" fill="#3c7d4a"/>
+  <path d="M0 70 Q36 44 120 56 V70 Z" fill="#2f6b3c"/>
+  <path d="M6 58 Q30 48 56 54 M10 64 Q36 55 66 60 M64 56 Q88 50 112 46 M70 62 Q92 58 114 53" stroke="#bedfa8" stroke-width="1.6" fill="none"/>
+  <circle cx="96" cy="12" r="8" fill="#e8a413"/>
+  <rect x="20" y="32" width="16" height="8" rx="2" fill="#28567e"/>
+  <rect x="38" y="33" width="12" height="7" rx="2" fill="#b0301a"/>
+  <circle cx="25" cy="41" r="2.4" fill="#2e1f16"/><circle cx="32" cy="41" r="2.4" fill="#2e1f16"/><circle cx="43" cy="41" r="2.4" fill="#2e1f16"/>
+  <path d="M18 36 q-4 -7 2 -11" stroke="#cdd4cf" stroke-width="2.4" fill="none"/>`),
+'Kodaikanal': SV(`
+  <path d="M10 30 L18 8 L26 30 Z" fill="#2f6b3c"/><path d="M26 32 L34 6 L42 32 Z" fill="#3c7d4a"/>
+  <path d="M84 30 L92 10 L100 30 Z" fill="#2f6b3c"/><path d="M98 32 L106 12 L114 32 Z" fill="#3c7d4a"/>
+  <ellipse cx="60" cy="52" rx="52" ry="16" fill="#4a90b8"/>
+  <ellipse cx="60" cy="52" rx="40" ry="11" fill="#5ba3cf"/>
+  <path d="M46 50 q14 8 28 0 l-4 6 q-10 5 -20 0 Z" fill="#e8a413"/>
+  <rect x="55" y="40" width="3" height="10" fill="#b0301a"/>
+  <path d="M58 40 l9 5 l-9 3 Z" fill="#b0301a"/>`),
+'Yercaud': SV(`
+  <path d="M0 70 Q34 8 76 34 Q102 48 120 30 V70 Z" fill="#3c7d4a"/>
+  <path d="M14 64 Q44 56 36 48 Q26 42 56 38 Q80 35 70 28" stroke="#fdf3da" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <circle cx="100" cy="12" r="8" fill="#e8a413"/>
+  <path d="M82 46 l4 -9 l4 9 Z" fill="#2f6b3c"/>
+  <path d="M94 52 l4 -9 l4 9 Z" fill="#2f6b3c"/>`),
+'Coimbatore': SV(`
+  <rect x="12" y="34" width="22" height="36" fill="#28567e"/>
+  <rect x="38" y="44" width="18" height="26" fill="#3f6f96"/>
+  <rect x="16" y="38" width="5" height="5" fill="#ffd34d"/><rect x="25" y="38" width="5" height="5" fill="#ffd34d"/>
+  <rect x="16" y="48" width="5" height="5" fill="#ffd34d"/><rect x="25" y="48" width="5" height="5" fill="#ffd34d"/>
+  <rect x="42" y="48" width="4" height="4" fill="#ffd34d"/><rect x="49" y="48" width="4" height="4" fill="#ffd34d"/>
+  <rect x="62" y="26" width="6" height="44" fill="#7a6a5a"/>
+  <circle cx="65" cy="20" r="4" fill="#cdc4ba" opacity=".8"/><circle cx="70" cy="13" r="5" fill="#cdc4ba" opacity=".6"/>
+  <circle cx="92" cy="50" r="14" fill="#8a8378"/>
+  <circle cx="92" cy="50" r="7" fill="#fdf3da"/>
+  <path d="M92 33 v6 M92 61 v6 M75 50 h6 M103 50 h6 M80 38 l4 4 M100 58 l4 4 M104 38 l-4 4 M84 58 l-4 4" stroke="#8a8378" stroke-width="4"/>`),
+'Tiruppur': SV(`
+  <rect x="0" y="12" width="120" height="2.5" fill="#8c5a2b"/>
+  <path d="M44 22 L52 16 H68 L76 22 L72 30 L68 27 V52 H52 V27 L48 30 Z" fill="#b0301a"/>
+  <path d="M52 16 q8 7 16 0" stroke="#8e2412" stroke-width="2" fill="none"/>
+  <path d="M58 14 v-2 h4" stroke="#5a4a3a" stroke-width="2" fill="none"/>
+  <path d="M84 22 L90 17 H102 L108 22 L105 28 L102 26 V46 H90 V26 L87 28 Z" fill="#2a7f7a"/>
+  <path d="M96 15 v-3 h4" stroke="#5a4a3a" stroke-width="2" fill="none"/>
+  <path d="M14 22 L20 17 H32 L38 22 L35 28 L32 26 V46 H20 V26 L17 28 Z" fill="#e8a413"/>
+  <path d="M26 15 v-3 h4" stroke="#5a4a3a" stroke-width="2" fill="none"/>`),
+'Salem': SV(`
+  <path d="M0 70 Q26 38 56 54 Q90 68 120 44 V70 Z" fill="#3c7d4a"/>
+  <path d="M58 18 q-16 -2 -20 14 q-3 16 14 20 q20 4 24 -12 q3 -16 -18 -22 Z" fill="#e8a413"/>
+  <path d="M62 20 q-12 8 -8 26" stroke="#c98b07" stroke-width="2.4" fill="none"/>
+  <path d="M58 18 q4 -7 12 -7 q-2 7 -8 9 Z" fill="#2f6b3c"/>
+  <path d="M60 12 q2 -5 0 -9" stroke="#5a4a3a" stroke-width="2.4" fill="none"/>`),
+'Pondy Bazaar': SV(`
+  <rect x="6" y="30" width="32" height="40" fill="#fffdf7" stroke="#d9cdb4"/>
+  <path d="M4 30 h36 l-3 -10 h-30 Z" fill="#b0301a"/>
+  <path d="M9 21 v9 M15 21 v9 M21 21 v9 M27 21 v9 M33 21 v9" stroke="#fdf3da" stroke-width="2.6"/>
+  <rect x="12" y="38" width="20" height="18" fill="#28567e" opacity=".25"/>
+  <rect x="44" y="26" width="32" height="44" fill="#fffdf7" stroke="#d9cdb4"/>
+  <path d="M42 26 h36 l-3 -10 h-30 Z" fill="#2f6b3c"/>
+  <path d="M47 17 v9 M53 17 v9 M59 17 v9 M65 17 v9 M71 17 v9" stroke="#fdf3da" stroke-width="2.6"/>
+  <rect x="50" y="34" width="20" height="20" fill="#e8a413" opacity=".3"/>
+  <rect x="82" y="32" width="32" height="38" fill="#fffdf7" stroke="#d9cdb4"/>
+  <path d="M80 32 h36 l-3 -10 h-30 Z" fill="#e8a413"/>
+  <path d="M85 23 v9 M91 23 v9 M97 23 v9 M103 23 v9 M109 23 v9" stroke="#b0301a" stroke-width="2.6"/>
+  <rect x="88" y="40" width="20" height="16" fill="#b0301a" opacity=".2"/>`),
+'Luz Corner': SV(`
+  <rect x="40" y="22" width="40" height="48" fill="#fffdf7" stroke="#d9cdb4"/>
+  <path d="M38 22 L60 6 L82 22 Z" fill="#e8a413"/>
+  <path d="M60 6 v-5 M57 3.5 h6" stroke="#8c5a2b" stroke-width="2"/>
+  <path d="M52 70 v-16 a8 8 0 0 1 16 0 v16" fill="#8c5a2b"/>
+  <rect x="44" y="30" width="8" height="12" rx="4" fill="#28567e" opacity=".4"/>
+  <rect x="68" y="30" width="8" height="12" rx="4" fill="#28567e" opacity=".4"/>
+  <path d="M16 70 q-3 -22 6 -34 q2 12 4 16 q5 -4 6 -10 q5 14 -4 28 Z" fill="#3c7d4a"/>
+  <path d="M96 70 q-3 -22 6 -34 q2 12 4 16 q5 -4 6 -10 q5 14 -4 28 Z" fill="#3c7d4a"/>`),
+'Chettinad': SV(`
+  <rect x="14" y="34" width="92" height="36" fill="#c97f5a"/>
+  <path d="M10 34 h100 l-5 -10 h-90 Z" fill="#8c5a2b"/>
+  <rect x="20" y="40" width="9" height="30" fill="#8c5a2b"/>
+  <rect x="91" y="40" width="9" height="30" fill="#8c5a2b"/>
+  <path d="M48 70 v-22 a12 11 0 0 1 24 0 v22" fill="#5d3a22"/>
+  <path d="M48 70 v-22 a12 11 0 0 1 24 0 v22" fill="none" stroke="#e8a413" stroke-width="2.5"/>
+  <rect x="33" y="44" width="10" height="11" fill="#2a7f7a" opacity=".55"/>
+  <rect x="77" y="44" width="10" height="11" fill="#2a7f7a" opacity=".55"/>
+  <path d="M14 62 h92" stroke="#e8a413" stroke-width="2" opacity=".6"/>`),
+'rail': SV(`
+  <rect x="0" y="62" width="120" height="3.5" fill="#4a4038"/>
+  <path d="M6 65 l5 5 M22 65 l5 5 M38 65 l5 5 M54 65 l5 5 M70 65 l5 5 M86 65 l5 5 M102 65 l5 5" stroke="#8a7a68" stroke-width="2.4"/>
+  <rect x="16" y="28" width="56" height="26" rx="5" fill="#28567e"/>
+  <rect x="72" y="20" width="24" height="34" rx="4" fill="#b0301a"/>
+  <rect x="76" y="25" width="14" height="11" rx="2" fill="#ffd34d"/>
+  <rect x="22" y="33" width="10" height="8" rx="2" fill="#cfe3f2"/>
+  <rect x="38" y="33" width="10" height="8" rx="2" fill="#cfe3f2"/>
+  <rect x="54" y="33" width="10" height="8" rx="2" fill="#cfe3f2"/>
+  <circle cx="28" cy="57" r="5.5" fill="#2e1f16"/><circle cx="50" cy="57" r="5.5" fill="#2e1f16"/><circle cx="84" cy="57" r="5.5" fill="#2e1f16"/>
+  <circle cx="28" cy="57" r="2" fill="#8a7a68"/><circle cx="50" cy="57" r="2" fill="#8a7a68"/><circle cx="84" cy="57" r="2" fill="#8a7a68"/>
+  <path d="M12 50 q-8 -2 -8 -10 q6 0 10 5" fill="#cdc4ba" opacity=".7"/>`),
+'TNEB': SV(`
+  <path d="M44 70 L56 14 H64 L76 70" fill="none" stroke="#7a6a5a" stroke-width="3"/>
+  <path d="M48 56 H72 M51 42 H69 M53.5 28 H66.5" stroke="#7a6a5a" stroke-width="2.4"/>
+  <path d="M48 56 L69 42 M72 56 L51 42 M51 42 L66.5 28 M69 42 L53.5 28" stroke="#9a8a78" stroke-width="1.4"/>
+  <path d="M40 24 h40" stroke="#5a4a3a" stroke-width="2"/>
+  <path d="M64 30 l-9 14 h7 l-6 14 l14 -17 h-7 l7 -11 Z" fill="#e8a413" stroke="#c98b07" stroke-width="1"/>`),
+'Metro Water': SV(`
+  <rect x="14" y="20" width="34" height="28" rx="4" fill="#4a90b8"/>
+  <path d="M18 26 h26 M18 33 h26 M18 40 h26" stroke="#cfe3f2" stroke-width="2"/>
+  <rect x="26" y="48" width="10" height="22" fill="#7a6a5a"/>
+  <path d="M58 30 h22 q9 0 9 9 v4 h-8 v-4 q0 -2 -3 -2 h-20 Z" fill="#8a8378"/>
+  <rect x="62" y="22" width="6" height="10" fill="#8a8378"/>
+  <path d="M85 50 q-7 9 0 14 q8 -5 0 -14 Z" fill="#4a90b8"/>
+  <path d="M97 38 q-9 12 0 18 q10 -6 0 -18 Z" fill="#5ba3cf"/>`),
+'go': SV(`
+  <path d="M14 50 Q60 78 106 50" stroke="#2f6b3c" stroke-width="4" fill="none"/>
+  <path d="M22 53 l4 9 l4 -8 M38 59 l3 9 l5 -8 M56 62 l4 9 l4 -9 M74 60 l4 9 l4 -9 M90 54 l4 9 l4 -8" fill="#3c7d4a"/>
+  <path d="M60 12 q-9 7 -9 17 q0 8 9 13 q9 -5 9 -13 q0 -10 -9 -17 Z" fill="#e8a413" stroke="#c98b07" stroke-width="1.5"/>
+  <path d="M60 16 v22 M54 22 q6 5 12 0" stroke="#fffdf7" stroke-width="1.8" fill="none"/>`),
+'jail': SV(`
+  <rect x="30" y="14" width="60" height="48" rx="5" fill="#6b5d50"/>
+  <rect x="38" y="22" width="44" height="32" rx="3" fill="#fdf3da"/>
+  <path d="M46 22 v32 M56 22 v32 M66 22 v32 M76 22 v32" stroke="#2e1f16" stroke-width="3.2"/>
+  <circle cx="61" cy="38" r="6" fill="#c97f5a"/>
+  <path d="M55 36 q6 -5 12 0 l-1 -5 h-10 Z" fill="#2e1f16"/>`),
+'rest': SV(`
+  <path d="M22 30 h76 l-8 -14 h-60 Z" fill="#3c7d4a"/>
+  <path d="M26 30 v36 M94 30 v36" stroke="#8c5a2b" stroke-width="4"/>
+  <path d="M48 66 q-4 -16 4 -22 q-7 -2 -7 -8 q0 -7 11 -7 q11 0 11 7 q0 6 -7 8 q8 6 4 22 Z" fill="#c97f5a"/>
+  <ellipse cx="56" cy="36" rx="8" ry="3" fill="#8c5a2b"/>
+  <rect x="74" y="44" width="10" height="16" rx="2" fill="#cdd4cf"/>
+  <ellipse cx="79" cy="44" rx="5" ry="1.8" fill="#9aa5a0"/>`),
+'gotojail': SV(`
+  <rect x="46" y="34" width="28" height="22" rx="4" fill="#6b5d50"/>
+  <path d="M50 34 v-6 a10 10 0 0 1 20 0 v6" fill="none" stroke="#6b5d50" stroke-width="4"/>
+  <ellipse cx="60" cy="20" rx="10" ry="7" fill="#b0301a"/>
+  <path d="M60 8 v5 M48 12 l4 4 M72 12 l-4 4" stroke="#e8a413" stroke-width="2.6" stroke-linecap="round"/>
+  <path d="M52 40 v10 M60 40 v10 M68 40 v10" stroke="#fdf3da" stroke-width="2.6"/>`),
+'card': SV(`
+  <ellipse cx="60" cy="58" rx="22" ry="6" fill="#c97f5a"/>
+  <path d="M40 56 q0 -8 20 -8 q20 0 20 8 q0 6 -20 6 q-20 0 -20 -6 Z" fill="#b0623a"/>
+  <path d="M58 46 q-2 -10 2 -16 q4 6 2 16 Z" fill="#e8a413"/>
+  <path d="M60 30 q0 -6 0 -9" stroke="#e8a413" stroke-width="2.4" stroke-linecap="round"/>
+  <circle cx="60" cy="19" r="2.4" fill="#ffd34d"/>`)
+};
+const artFor = t => {
+  if(ART[t.name]) return ART[t.name];
+  if(t.group==='rail') return ART['rail'];
+  if(t.name==='TNEB') return ART['TNEB'];
+  if(t.name==='Metro Water') return ART['Metro Water'];
+  return ART[t.type] || '';
+};
+
+/* ================= DATA ================= */
+const GROUPS = {
+  heritage:{c:'var(--g-heritage)', label:'Heritage'},
+  temple:  {c:'var(--g-temple)',   label:'Temple towns'},
+  hills:   {c:'var(--g-hills)',    label:'Hill stations'},
+  industry:{c:'var(--g-industry)', label:'Industry belt'},
+  chennai: {c:'var(--g-chennai)',  label:'Chennai'},
+  rail:    {c:'var(--g-rail)',     label:'Southern Railway'},
+  util:    {c:'var(--g-util)',     label:'Utilities'}
+};
+const T = (name,type,opts={}) => Object.assign({name,type},opts);
+const TILES = [
+  T('Vanakkam!','go',{sub:'Collect ₹2,000',ta:'வணக்கம்'}),
+  T('Mahabalipuram','prop',{group:'heritage',price:1200,rent:120,ta:'மாமல்லபுரம்'}),
+  T('Sandhippu','card',{ta:'சந்திப்பு'}),
+  T('Chettinad','prop',{group:'heritage',price:1400,rent:140,ta:'செட்டிநாடு'}),
+  T('Vari (Tax)','tax',{amount:1000,ta:'வரி'}),
+  T('Chennai Central','prop',{group:'rail',price:2500,ta:'சென்னை சென்ட்ரல்'}),
+  T('Madurai','prop',{group:'temple',price:2000,rent:200,ta:'மதுரை'}),
+  T('Kaaval Lockup','jail',{sub:'Just visiting',ta:'காவல்'}),
+  T('Thanjavur','prop',{group:'temple',price:2200,rent:220,ta:'தஞ்சாவூர்'}),
+  T('Rameswaram','prop',{group:'temple',price:2400,rent:240,ta:'ராமேஸ்வரம்'}),
+  T('TNEB','prop',{group:'util',price:2000,ta:'மின்சார வாரியம்'}),
+  T('Yercaud','prop',{group:'hills',price:2800,rent:280,ta:'ஏற்காடு'}),
+  T('Madurai Jn','prop',{group:'rail',price:2500,ta:'மதுரை சந்திப்பு'}),
+  T('Kodaikanal','prop',{group:'hills',price:3200,rent:320,ta:'கொடைக்கானல்'}),
+  T('Thanneer Pandal','rest',{sub:'Free rest stop',ta:'தண்ணீர் பந்தல்'}),
+  T('Ooty','prop',{group:'hills',price:3000,rent:300,ta:'உதகை'}),
+  T('Sandhippu','card',{ta:'சந்திப்பு'}),
+  T('Salem','prop',{group:'industry',price:3400,rent:340,ta:'சேலம்'}),
+  T('Tiruppur','prop',{group:'industry',price:3600,rent:360,ta:'திருப்பூர்'}),
+  T('Coimbatore Jn','prop',{group:'rail',price:2500,ta:'கோவை சந்திப்பு'}),
+  T('Coimbatore','prop',{group:'industry',price:4000,rent:400,ta:'கோயம்புத்தூர்'}),
+  T('Maatikitta!','gotojail',{sub:'Go to lockup',ta:'மாட்டிக்கிட்ட!'}),
+  T('Luz Corner','prop',{group:'chennai',price:5500,rent:550,ta:'லஸ் கார்னர்'}),
+  T('Metro Water','prop',{group:'util',price:2000,ta:'குழாய் தண்ணீர்'}),
+  T('Pondy Bazaar','prop',{group:'chennai',price:6000,rent:600,ta:'பாண்டி பஜார்'}),
+  T('Sandhippu','card',{ta:'சந்திப்பு'}),
+  T('Trichy Jn','prop',{group:'rail',price:2500,ta:'திருச்சி சந்திப்பு'}),
+  T('Marina Beach','prop',{group:'chennai',price:8000,rent:800,ta:'மெரினா கடற்கரை'})
+];
+const CARDS = [
+  {text:'Pongal bonus for your workers pays back in goodwill — and profit. Collect ₹1,500.', fx:{money:1500}, e:'🌾'},
+  {text:'Chennai rains flood your godown. Pay ₹1,000 for repairs.', fx:{money:-1000}, e:'🌧️'},
+  {text:'Your kadai\u2019s filter kaapi goes viral on YouTube. Collect ₹2,000.', fx:{money:2000}, e:'☕'},
+  {text:'Margazhi kutcheri season — sabha ticket sales boom. Collect ₹1,200.', fx:{money:1200}, e:'🎻'},
+  {text:'Advance to Vanakkam! Collect ₹2,000.', fx:{gotoGO:true}, e:'🙏'},
+  {text:'A movie crew shoots a song on your property. Collect ₹2,500.', fx:{money:2500}, e:'🎬'},
+  {text:'Property vari is due. Pay ₹800.', fx:{money:-800}, e:'🧾'},
+  {text:'Caught jaywalking on Anna Salai. Pay a ₹300 fine.', fx:{money:-300}, e:'🚦'},
+  {text:'Catch the express to Chennai Central!', fx:{goto:5}, e:'🚂'},
+  {text:'GST papers not in order. Straight to the lockup!', fx:{jail:true}, e:'👮'},
+  {text:'Temple undiyal donation. Pay ₹600.', fx:{money:-600}, e:'🛕'},
+  {text:'Your team wins the local kabaddi tournament pot. Collect ₹900.', fx:{money:900}, e:'🤼'}
+];
+const TOKENS = ['🛺','🦚','☕','🥥'];
+const PCOLORS = ['var(--p1)','var(--p2)','var(--p3)','var(--p4)'];
+const DEFAULT_NAMES = ['Murugan','Valli','Kannan','Meena'];
+const SALARY = 2000, START_CASH = 20000, JAIL_IDX = 7, JAIL_FEE = 500, RAIL_RENT = 600;
+const SHY = {'Mahabalipuram':'Mahabali\u00ADpuram','Kodaikanal':'Kodai\u00ADkanal','Rameswaram':'Rames\u00ADwaram','Thanjavur':'Thanja\u00ADvur','Coimbatore':'Coim\u00ADbatore','Vanakkam!':'Vanak\u00ADkam!','Maatikitta!':'Maati\u00ADkitta!'};
+
+/* ================= STATE ================= */
+let state = null, deck = [];
+function newGame(players, roundLimit){
+  state = {
+    players: players.map((p,i)=>({
+      name:p.name, tok:TOKENS[i], color:PCOLORS[i],
+      cash:START_CASH, pos:0, props:[], inJail:false, jailTries:0, out:false
+    })),
+    cur:0, phase:'roll', doubles:0, dice:[1,1], pendingBuy:null,
+    round:1, roundLimit: roundLimit||0
+  };
+  deck = shuffle(CARDS.slice());
+  log(`A new game begins! ${players.length} mudalalis enter Tamil Nadu with ${fmt(START_CASH)} each.${roundLimit?` Richest after ${roundLimit} rounds wins.`:''}`, true);
+}
+const shuffle = a => { for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
+const fmt = n => '₹' + Math.abs(n).toLocaleString('en-IN');
+const curP = () => state.players[state.cur];
+const ownerOf = i => state ? (state.players.find(p=>!p.out && p.props.includes(i)) || null) : null;
+
+/* ================= SOUND ================= */
+let AC = null, soundOn = true;
+function audio(){
+  if(!soundOn) return null;
+  if(!AC){ try{ AC = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ return null; } }
+  if(AC.state==='suspended') AC.resume();
+  return AC;
+}
+function blip(freq, dur, type, gain){
+  const ac = audio(); if(!ac) return;
+  const t = ac.currentTime;
+  const o = ac.createOscillator(), g = ac.createGain();
+  o.type = type||'sine'; o.frequency.setValueAtTime(freq, t);
+  g.gain.setValueAtTime(gain||0.12, t);
+  g.gain.exponentialRampToValueAtTime(0.0001, t+dur);
+  o.connect(g); g.connect(ac.destination);
+  o.start(t); o.stop(t+dur+0.02);
+}
+function rattle(dur, gain, hp){
+  const ac = audio(); if(!ac) return;
+  const n = Math.floor(ac.sampleRate*dur);
+  const buf = ac.createBuffer(1, n, ac.sampleRate), d = buf.getChannelData(0);
+  for(let i=0;i<n;i++) d[i] = (Math.random()*2-1)*(1-i/n);
+  const src = ac.createBufferSource(); src.buffer = buf;
+  const f = ac.createBiquadFilter(); f.type='highpass'; f.frequency.value = hp||1600;
+  const g = ac.createGain(); g.gain.value = gain||0.12;
+  src.connect(f); f.connect(g); g.connect(ac.destination); src.start();
+}
+const sndRollTick = ()=> rattle(0.045, 0.14, 2000);
+const sndDiceStop = ()=>{ blip(150, 0.2, 'sine', 0.3); rattle(0.07, 0.18, 700); };
+const sndStep     = ()=> blip(640 + Math.random()*220, 0.07, 'square', 0.06);
+const sndBuy      = ()=>{ blip(520,0.1,'sine',0.14); blip(780,0.16,'sine',0.12); };
+const sndFanfare  = ()=>{
+  [[523,0],[659,110],[784,220],[1047,380]].forEach(([f,t])=>
+    setTimeout(()=>{ blip(f,0.22,'triangle',0.14); }, t));
+  setTimeout(()=> rattle(0.06,0.1,2400), 380);
+};
+let mascotBusy = false;
+function mascot(){
+  if(mascotBusy) return;
+  mascotBusy = true;
+  const el = document.getElementById('mascot');
+  el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
+  sndFanfare();
+  setTimeout(()=>{ el.classList.remove('show'); mascotBusy = false; }, 2650);
+}
+
+/* ================= BOARD ================= */
+function gridPos(i){
+  if(i===0)  return [8,8];
+  if(i<7)    return [8,8-i];
+  if(i===7)  return [8,1];
+  if(i<14)   return [8-(i-7),1];
+  if(i===14) return [1,1];
+  if(i<21)   return [1,1+(i-14)];
+  if(i===21) return [1,8];
+  return [1+(i-21),8];
+}
+function buildBoard(){
+  const b = document.getElementById('board');
+  b.innerHTML = '';
+  TILES.forEach((t,i)=>{
+    const d = document.createElement('div');
+    const corner = ['go','jail','rest','gotojail'].includes(t.type);
+    d.className = 'tile' + (corner ? ' corner' : '');
+    d.id = 'tile'+i;
+    const [r,c] = gridPos(i);
+    d.style.gridRow = r; d.style.gridColumn = c;
+    const dn = SHY[t.name] || t.name;
+    let inner = '';
+    if(t.type==='prop' && t.group!=='rail' && t.group!=='util')
+      inner += `<div class="band" style="background:${GROUPS[t.group].c}"></div>`;
+    inner += `<div class="tname">${dn}</div>`;
+    inner += `<div class="art">${artFor(t)}</div>`;
+    if(t.price) inner += `<div class="tprice">${fmt(t.price)}</div>`;
+    else if(t.type==='tax') inner += `<div class="tprice">Pay ${fmt(t.amount)}</div>`;
+    else if(t.sub) inner += `<div class="tprice">${t.sub}</div>`;
+    inner += `<div class="tokens" id="tok${i}"></div>`;
+    d.innerHTML = inner;
+    d.title = t.name;
+    d.addEventListener('click', ()=> peekTile(i));
+    b.appendChild(d);
+  });
+  const c = document.createElement('div');
+  c.className = 'centre';
+  c.innerHTML = `
+    <svg class="kolam" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <defs><pattern id="kp" width="40" height="40" patternUnits="userSpaceOnUse">
+        <circle cx="20" cy="20" r="2.2" fill="#2e1f16"/>
+        <path d="M20 4 C32 12 32 28 20 36 C8 28 8 12 20 4 Z" fill="none" stroke="#2e1f16" stroke-width="1.4"/>
+        <path d="M4 20 C12 8 28 8 36 20 C28 32 12 32 4 20 Z" fill="none" stroke="#b0301a" stroke-width="1.1"/>
+      </pattern></defs>
+      <rect width="200" height="200" fill="url(#kp)"/>
+    </svg>
+    <div class="title-ta">முதலாளி</div>
+    <div class="title-en">Mudalali</div>
+    <div class="tagline">A fun property game inspired by places we love — buy, collect rent, own them all.!</div>
+    <button class="big-start" id="bigStart" aria-label="Start setting up the game">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#3a2a08" opacity=".16"/><path d="M9.3 7.2 L17.2 12 L9.3 16.8 Z" fill="#3a2a08"/></svg>
+      START
+    </button>
+    <div class="turn-label" id="turnLabel" style="display:none"></div>
+    <div class="dice-row">
+      <div class="die" id="die1">5</div>
+      <div class="die" id="die2">3</div>
+    </div>`;
+  b.appendChild(c);
+}
+const DIEFACE = ['','1','2','3','4','5','6'];
+
+function render(){
+  TILES.forEach((t,i)=>{
+    const tile = document.getElementById('tile'+i);
+    const tokWrap = document.getElementById('tok'+i);
+    tokWrap.innerHTML = state ? state.players.filter(p=>!p.out && p.pos===i)
+      .map(p=>`<span class="tok" title="${p.name}">${p.tok}</span>`).join('') : '';
+    let ow = tile.querySelector('.owner');
+    const owner = ownerOf(i);
+    if(owner && t.type==='prop'){
+      if(!ow){ ow = document.createElement('div'); ow.className='owner'; tile.appendChild(ow); }
+      ow.style.borderColor = `transparent ${owner.color} transparent transparent`;
+      ow.title = owner.name;
+    } else if(ow) ow.remove();
+    tile.classList.toggle('cur', !!state && curP() && !curP().out && curP().pos===i);
+  });
+  if(!state) return;
+  document.getElementById('pcards').innerHTML = state.players.map((p,i)=>`
+    <div class="pcard ${i===state.cur?'active':''} ${p.out?'out':''}" style="--pc:${p.color}" id="pcard${i}">
+      <span class="avatar">${p.tok}</span>
+      <span class="pmeta">
+        <div class="pname">${p.name}${p.inJail?'<span class="jail-tag">lockup</span>':''}</div>
+        <div class="pprops">${p.props.length} propert${p.props.length===1?'y':'ies'}</div>
+      </span>
+      <span class="pcash">${p.out?'—':fmt(p.cash)}</span>
+    </div>`).join('');
+  document.getElementById('die1').textContent = DIEFACE[state.dice[0]];
+  document.getElementById('die2').textContent = DIEFACE[state.dice[1]];
+  document.getElementById('turnLabel').textContent =
+    `${state.roundLimit ? 'Round '+state.round+'/'+state.roundLimit+' · ' : ''}${curP().tok} ${curP().name}'s turn`;
+  document.getElementById('turnHeading').textContent = `${curP().name}'s move`;
+  const show = (id,on) => document.getElementById(id).style.display = on?'':'none';
+  const ph = state.phase, jailed = curP().inJail;
+  show('rollBtn', ph==='roll' && !jailed);
+  show('payJailBtn', ph==='roll' && jailed);
+  show('tryJailBtn', ph==='roll' && jailed);
+  document.getElementById('payJailBtn').disabled = curP().cash < JAIL_FEE;
+  const hint = document.getElementById('actionHint');
+  if(ph==='roll' && jailed)
+    hint.textContent = `You're in the kaaval lockup (try ${curP().jailTries+1} of 3). Pay ${fmt(JAIL_FEE)} or roll doubles.`;
+  else if(ph==='buy') hint.textContent = `Deciding on ${TILES[state.pendingBuy].name}…`;
+  else if(ph==='end') hint.textContent = 'Passing the dice…';
+  else hint.textContent = '';
+}
+function floatCash(p, amt){
+  const i = state.players.indexOf(p);
+  const el = document.getElementById('pcard'+i);
+  if(!el) return;
+  const s = document.createElement('span');
+  s.className = 'cashfloat';
+  s.style.color = amt>=0 ? 'var(--ilai)' : 'var(--kumkum)';
+  s.textContent = (amt>=0?'+':'−') + fmt(amt);
+  el.appendChild(s);
+  setTimeout(()=>s.remove(), 1100);
+}
+
+/* ================= MODAL ================= */
+function showModal(o){
+  const mArt = document.getElementById('mArt');
+  if(o.art){ mArt.style.display=''; mArt.innerHTML = o.art.replace('xMidYMax meet','xMidYMid slice') + (o.bandColor?`<div class="gband" style="background:${o.bandColor}"></div>`:''); }
+  else if(o.emoji){ mArt.style.display=''; mArt.innerHTML = `<div class="gemoji">${o.emoji}</div>`; }
+  else mArt.style.display='none';
+  document.getElementById('mEyebrow').textContent = o.eyebrow||'';
+  document.getElementById('mTitle').textContent = o.title||'';
+  document.getElementById('mTa').textContent = o.ta||'';
+  document.getElementById('mText').innerHTML = o.text||'';
+  document.getElementById('mRent').innerHTML = o.rent||'';
+  document.getElementById('mOwner').innerHTML = o.owner||'';
+  const btns = document.getElementById('mBtns');
+  btns.innerHTML = '';
+  (o.buttons||[]).forEach(b=>{
+    const el = document.createElement('button');
+    el.className = 'btn ' + (b.cls||'');
+    el.textContent = b.label;
+    if(b.disabled) el.disabled = true;
+    el.onclick = ()=>{ hideModal(); b.fn && b.fn(); };
+    btns.appendChild(el);
+  });
+  document.getElementById('overlay').classList.add('show');
+}
+function hideModal(){ document.getElementById('overlay').classList.remove('show'); }
+
+function deedRent(idx){
+  const t = TILES[idx];
+  if(t.group==='rail')
+    return `<div class="rrow"><span>Rent with 1 junction</span><b>${fmt(RAIL_RENT)}</b></div>
+            <div class="rrow"><span>with 2 / 3 / 4 junctions</span><b>${fmt(RAIL_RENT*2)} / ${fmt(RAIL_RENT*3)} / ${fmt(RAIL_RENT*4)}</b></div>`;
+  if(t.group==='util')
+    return `<div class="rrow"><span>Rent (one utility)</span><b>dice × ₹150</b></div>
+            <div class="rrow"><span>Rent (both utilities)</span><b>dice × ₹300</b></div>`;
+  return `<div class="rrow"><span>Rent</span><b>${fmt(t.rent)}</b></div>
+          <div class="rrow"><span>Rent with full ${GROUPS[t.group].label} group</span><b>${fmt(t.rent*2)}</b></div>`;
+}
+function deedOwner(idx){
+  const o = ownerOf(idx);
+  if(!o) return `<span class="gowner">Unowned — available from the bank</span>`;
+  return `<span class="gowner" style="--oc:${o.color}">${o.tok} Owned by ${o.name}</span>`;
+}
+function peekTile(idx){
+  if(state && (state.phase==='buy' || state.phase==='moving')) return;
+  const t = TILES[idx];
+  if(t.type==='prop'){
+    showModal({
+      art: artFor(t), bandColor: GROUPS[t.group].c,
+      eyebrow: GROUPS[t.group].label, title: t.name, ta: t.ta||'',
+      text: `Price: <b>${fmt(t.price)}</b>`,
+      rent: deedRent(idx), owner: deedOwner(idx),
+      buttons: [{label:'Close', cls:'ghost'}]
+    });
+  } else {
+    const desc = {go:`Pass or land here to collect ${fmt(SALARY)} salary.`,
+      jail:'Just visiting — unless the kaaval has other plans.',
+      rest:'A free rest stop. Cool mor and shade for every traveller.',
+      gotojail:'Land here and it\u2019s straight to the lockup!',
+      card:'Draw a Sandhippu card and face your fate.',
+      tax:`Pay ${fmt(t.amount||0)} to the taxman.`}[t.type]||'';
+    showModal({ art: artFor(t), eyebrow:'Board space', title: t.name, ta: t.ta||'',
+      text: desc, buttons: [{label:'Close', cls:'ghost'}] });
+  }
+}
+
+/* ================= GAME FLOW ================= */
+function log(msg, hot){
+  const el = document.createElement('div');
+  if(hot) el.className = 'hot';
+  el.textContent = msg;
+  document.getElementById('log').prepend(el);
+}
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._h); t._h = setTimeout(()=>t.classList.remove('show'), 2600);
+}
+function rollDice(){ return [1+Math.floor(Math.random()*6), 1+Math.floor(Math.random()*6)]; }
+function animateDice(d, done){
+  const dies = ['die1','die2'].map(id=>document.getElementById(id));
+  dies.forEach(el=>{ el.classList.remove('land'); el.classList.add('tumble'); });
+  let n = 0;
+  const iv = setInterval(()=>{
+    dies[0].textContent = DIEFACE[1+Math.floor(Math.random()*6)];
+    dies[1].textContent = DIEFACE[1+Math.floor(Math.random()*6)];
+    sndRollTick();
+    if(++n>10){
+      clearInterval(iv);
+      dies[0].textContent = DIEFACE[d[0]];
+      dies[1].textContent = DIEFACE[d[1]];
+      dies.forEach(el=>{ el.classList.remove('tumble'); void el.offsetWidth; el.classList.add('land'); });
+      sndDiceStop();
+      setTimeout(done, 160);
+    }
+  }, 75);
+}
+function doRoll(){
+  state.phase = 'moving'; render();
+  const d = rollDice(); state.dice = d;
+  animateDice(d, ()=>{
+    const p = curP();
+    const isDouble = d[0]===d[1];
+    if(isDouble){ state.doubles++; } else state.doubles = 0;
+    if(state.doubles===3){
+      log(`${p.name} rolled three doubles in a row — maatikitta! Off to the lockup.`, true);
+      sendToJail(p); state.doubles=0; scheduleNext(); return;
+    }
+    log(`${p.name} rolled ${d[0]} + ${d[1]} = ${d[0]+d[1]}${isDouble?' (doubles!)':''}.`);
+    stepMove(p, d[0]+d[1], ()=> landOn(p, isDouble));
+  });
+}
+function stepMove(p, steps, done){
+  let left = steps;
+  const iv = setInterval(()=>{
+    p.pos = (p.pos+1) % TILES.length;
+    sndStep();
+    const tEl = document.getElementById('tile'+p.pos);
+    if(tEl){ tEl.classList.remove('stepflash'); void tEl.offsetWidth; tEl.classList.add('stepflash'); }
+    if(p.pos===0){
+      p.cash += SALARY;
+      log(`${p.name} passes Vanakkam and collects ${fmt(SALARY)}.`);
+      toast(`🙏 Vanakkam! ${p.name} collects ${fmt(SALARY)}`);
+      render(); floatCash(p, SALARY);
+    } else render();
+    if(--left===0){ clearInterval(iv); done(); }
+  }, 150);
+}
+function scheduleNext(){
+  state.phase = 'end'; render();
+  if(checkWin()) return;
+  setTimeout(()=>{ if(state && state.phase==='end') nextTurn(); }, 1300);
+}
+function landOn(p, wasDouble){
+  const t = TILES[p.pos];
+  const after = ()=>{
+    if(p.out){ scheduleNext(); return; }
+    if(wasDouble && !p.inJail){
+      state.phase = 'roll';
+      toast(`Doubles! ${p.name} rolls again.`);
+      render(); checkWin(); return;
+    }
+    scheduleNext();
+  };
+  switch(t.type){
+    case 'prop': {
+      const owner = ownerOf(p.pos);
+      if(!owner){
+        state.pendingBuy = p.pos; state.phase='buy'; state._afterBuy = after;
+        render(); showBuyModal(p.pos);
+      } else if(owner!==p){
+        const rent = rentFor(p.pos, owner);
+        payTo(p, owner, rent, `rent for ${t.name}`);
+        after();
+      } else { log(`${p.name} relaxes on their own ${t.name}.`); after(); }
+      break;
+    }
+    case 'tax': payTo(p, null, t.amount, 'vari (tax)'); after(); break;
+    case 'card': drawCard(p, after); break;
+    case 'gotojail':
+      log(`${p.name} landed on Maatikitta — straight to the lockup!`, true);
+      sendToJail(p); state.doubles=0; scheduleNext(); break;
+    case 'go': log(`${p.name} lands right on Vanakkam. Super-u!`); after(); break;
+    case 'jail': log(`${p.name} is just visiting the lockup. Appada!`); after(); break;
+    case 'rest':
+      log(`${p.name} rests at the Thanneer Pandal. Free mor for everyone!`);
+      toast('🥤 Free rest at the Thanneer Pandal'); after(); break;
+    default: after();
+  }
+}
+function showBuyModal(idx){
+  const t = TILES[idx], p = curP();
+  const afford = p.cash >= t.price;
+  showModal({
+    art: artFor(t), bandColor: GROUPS[t.group].c,
+    eyebrow: GROUPS[t.group].label, title: t.name, ta: t.ta||'',
+    text: afford ? `${p.tok} ${p.name}, this place can be yours for <b>${fmt(t.price)}</b>.`
+                 : `Price <b>${fmt(t.price)}</b> — kaasu pathala! ${p.name} can't afford it right now.`,
+    rent: deedRent(idx),
+    buttons: [
+      {label:`Buy · ${fmt(t.price)}`, cls:'alt', disabled:!afford, fn:buyProp},
+      {label:'Skip', cls:'ghost', fn:skipProp}
+    ]
+  });
+}
+function rentFor(idx, owner){
+  const t = TILES[idx];
+  if(t.group==='rail'){
+    const n = owner.props.filter(i=>TILES[i].group==='rail').length;
+    return RAIL_RENT * n;
+  }
+  if(t.group==='util'){
+    const both = owner.props.filter(i=>TILES[i].group==='util').length===2;
+    return (state.dice[0]+state.dice[1]) * (both?300:150);
+  }
+  const groupTiles = TILES.map((x,i)=>x.group===t.group?i:-1).filter(i=>i>=0);
+  const ownsAll = groupTiles.every(i=>owner.props.includes(i));
+  return t.rent * (ownsAll?2:1);
+}
+function payTo(p, to, amount, why){
+  const paid = Math.min(p.cash, amount);
+  p.cash -= paid;
+  if(to) to.cash += paid;
+  render();
+  floatCash(p, -paid);
+  if(to) floatCash(to, paid);
+  if(paid < amount){
+    log(`${p.name} owes ${fmt(amount)} (${why}) but only has ${fmt(paid)}. Bankrupt!`, true);
+    bankrupt(p);
+  } else {
+    log(`${p.name} pays ${fmt(amount)} ${to?('to '+to.name):''} — ${why}.`);
+    toast(`${p.tok} ${p.name} pays ${fmt(amount)}${to?(' to '+to.tok+' '+to.name):''}`);
+  }
+  render();
+}
+function bankrupt(p){
+  p.out = true; p.props = []; p.cash = 0;
+  toast(`💸 ${p.name} is out of the game!`);
+}
+function sendToJail(p){ p.pos = JAIL_IDX; p.inJail = true; p.jailTries = 0; render(); }
+function drawCard(p, after){
+  if(deck.length===0) deck = shuffle(CARDS.slice());
+  const c = deck.pop();
+  showModal({
+    emoji: c.e || '🪔', eyebrow:'Sandhippu', title:'', ta:'சந்திப்பு',
+    text: c.text,
+    buttons: [{label:'Seri, OK!', fn: ()=> applyCard(p, c, after)}]
+  });
+}
+function applyCard(p, c, after){
+  const fx = c.fx;
+  if(fx.money !== undefined){
+    if(fx.money >= 0){
+      p.cash += fx.money; render(); floatCash(p, fx.money);
+      log(`${p.name} collects ${fmt(fx.money)} (Sandhippu).`);
+    }
+    else payTo(p, null, -fx.money, 'Sandhippu card');
+    after(); return;
+  }
+  if(fx.gotoGO){
+    p.pos = 0; p.cash += SALARY; render(); floatCash(p, SALARY);
+    log(`${p.name} advances to Vanakkam and collects ${fmt(SALARY)}.`);
+    after(); return;
+  }
+  if(fx.goto !== undefined){
+    if(fx.goto < p.pos){ p.cash += SALARY; log(`${p.name} passes Vanakkam and collects ${fmt(SALARY)}.`); }
+    p.pos = fx.goto; render();
+    landOn(p, false); return;
+  }
+  if(fx.jail){ sendToJail(p); state.doubles=0; scheduleNext(); return; }
+  after();
+}
+function buyProp(){
+  const p = curP(), idx = state.pendingBuy, t = TILES[idx];
+  if(p.cash < t.price) return;
+  p.cash -= t.price; p.props.push(idx);
+  sndBuy();
+  render(); floatCash(p, -t.price);
+  log(`${p.name} buys ${t.name} for ${fmt(t.price)}!`, true);
+  toast(`${p.tok} ${p.name} is now mudalali of ${t.name}!`);
+  const groupTiles = TILES.map((x,i)=>x.group===t.group?i:-1).filter(i=>i>=0);
+  if(t.group && !['rail','util'].includes(t.group) && groupTiles.every(i=>p.props.includes(i)))
+    toast(`👑 ${p.name} owns all of ${GROUPS[t.group].label} — double rent!`);
+  state.pendingBuy = null;
+  state._afterBuy();
+}
+function skipProp(){
+  log(`${curP().name} passes on ${TILES[state.pendingBuy].name}.`);
+  state.pendingBuy = null;
+  state._afterBuy();
+}
+function nextTurn(){
+  if(checkWin()) return;
+  let n = state.cur;
+  do { n = (n+1) % state.players.length; } while(state.players[n].out);
+  if(n <= state.cur){
+    state.round++;
+    if(state.roundLimit && state.round > state.roundLimit){ endByWealth(); return; }
+  }
+  state.cur = n; state.doubles = 0; state.phase = 'roll';
+  render();
+  toast(`${curP().tok} ${curP().name}, unga murai! Your turn.`);
+}
+function wealthOf(p){ return p.cash + p.props.reduce((s,i)=>s + (TILES[i].price||0), 0); }
+function winModal(text){
+  showModal({ emoji:'🏆', eyebrow:'Vetri!', title:'', ta:'வெற்றி', text,
+    buttons:[{label:'Play again', cls:'gold', fn:()=>location.reload()}] });
+}
+function endByWealth(){
+  const alive = state.players.filter(p=>!p.out);
+  const w = alive.slice().sort((a,b)=>wealthOf(b)-wealthOf(a))[0];
+  state.phase = 'over'; render();
+  winModal(`Kanakku closed after ${state.roundLimit} rounds! ${w.tok} <b>${w.name}</b> is the richest mudalali with <b>${fmt(wealthOf(w))}</b> in total wealth (${fmt(w.cash)} cash + ${w.props.length} properties). Semma aattam!`);
+}
+function checkWin(){
+  const alive = state.players.filter(p=>!p.out);
+  if(alive.length===1){
+    const w = alive[0];
+    state.phase = 'over'; render();
+    winModal(`${w.tok} <b>${w.name}</b> has become the richest Mudalali, with <b>${fmt(w.cash)}</b> and ${w.props.length} properties! Semma aattam!`);
+    return true;
+  }
+  return false;
+}
+function payJail(){
+  const p = curP();
+  p.cash -= JAIL_FEE; p.inJail = false; p.jailTries = 0;
+  render(); floatCash(p, -JAIL_FEE);
+  log(`${p.name} pays ${fmt(JAIL_FEE)} and walks out of the lockup.`);
+  doRoll();
+}
+function tryJail(){
+  const p = curP();
+  const d = rollDice(); state.dice = d;
+  animateDice(d, ()=>{
+    if(d[0]===d[1]){
+      p.inJail = false; p.jailTries = 0;
+      log(`${p.name} rolls doubles (${d[0]}+${d[1]}) and escapes the lockup!`, true);
+      stepMove(p, d[0]+d[1], ()=> landOn(p, false));
+    } else {
+      p.jailTries++;
+      if(p.jailTries>=3){
+        log(`${p.name} fails a third time — pays ${fmt(JAIL_FEE)} and is released.`);
+        payTo(p, null, JAIL_FEE, 'lockup fee');
+        if(!p.out){ p.inJail=false; p.jailTries=0; stepMove(p, d[0]+d[1], ()=> landOn(p,false)); return; }
+        scheduleNext();
+      } else {
+        log(`${p.name} rolls ${d[0]}+${d[1]} — no doubles. Still in the lockup.`);
+        scheduleNext();
+      }
+    }
+  });
+}
+
+/* ================= SETUP ================= */
+let setupCount = 3, setupLen = 25;
+function renderSetup(){
+  document.querySelectorAll('#countPick button').forEach(b=>
+    b.classList.toggle('sel', +b.dataset.n===setupCount));
+  document.querySelectorAll('#lenPick button').forEach(b=>
+    b.classList.toggle('sel', +b.dataset.l===setupLen));
+  const rows = document.getElementById('nameRows');
+  rows.innerHTML = '';
+  for(let i=0;i<setupCount;i++){
+    rows.insertAdjacentHTML('beforeend', `
+      <div class="prow">
+        <span class="avatar" style="--pc:${PCOLORS[i]}">${TOKENS[i]}</span>
+        <input type="text" id="pname${i}" maxlength="14" placeholder="${DEFAULT_NAMES[i]}" value="">
+      </div>`);
+  }
+}
+document.getElementById('countPick').addEventListener('click', e=>{
+  if(e.target.dataset.n){ setupCount = +e.target.dataset.n; renderSetup(); }
+});
+document.getElementById('lenPick').addEventListener('click', e=>{
+  if(e.target.dataset.l !== undefined){ setupLen = +e.target.dataset.l; renderSetup(); }
+});
+document.getElementById('startBtn').addEventListener('click', ()=>{
+  audio();
+  const players = [];
+  for(let i=0;i<setupCount;i++){
+    const v = document.getElementById('pname'+i).value.trim();
+    players.push({name: v || DEFAULT_NAMES[i]});
+  }
+  newGame(players, setupLen);
+  document.getElementById('setupPanel').style.display='none';
+  document.getElementById('bigStart').style.display='none';
+  document.getElementById('turnLabel').style.display='';
+  ['gamePanel','playersPanel','logPanel'].forEach(id=>document.getElementById(id).style.display='');
+  render();
+  scrollToBoard();
+  toast(`${curP().tok} ${curP().name} starts. Vaanga, aadalam!`);
+  setTimeout(mascot, 350);
+});
+document.getElementById('rollBtn').addEventListener('click', ()=>{ audio(); scrollToBoard(); doRoll(); });
+document.getElementById('muteBtn').addEventListener('click', ()=>{
+  soundOn = !soundOn;
+  document.getElementById('muteBtn').textContent = soundOn ? '🔊' : '🔇';
+  if(soundOn) audio();
+});
+document.getElementById('payJailBtn').addEventListener('click', ()=>{ audio(); scrollToBoard(); payJail(); });
+document.getElementById('tryJailBtn').addEventListener('click', ()=>{ audio(); scrollToBoard(); tryJail(); });
+
+function scrollToBoard(){
+  document.querySelector('.board-wrap').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+window.addEventListener('beforeunload', (e)=>{
+  if(state && state.phase !== 'over'){
+    e.preventDefault();
+    e.returnValue = '';   // triggers the browser's "Leave page?" confirmation
+  }
+});
+
+buildBoard();
+renderSetup();
+document.getElementById('bigStart').addEventListener('click', ()=>{
+  const panel = document.getElementById('setupPanel');
+  panel.scrollIntoView({behavior:'smooth', block:'start'});
+  panel.classList.remove('pulse'); void panel.offsetWidth; panel.classList.add('pulse');
+});
+</script>
+</body>
+</html>
