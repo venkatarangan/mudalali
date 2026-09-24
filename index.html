@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://*.google-analytics.com https://*.googletagmanager.com; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com; base-uri 'self'; object-src 'none'; form-action 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mudalali — முதலாளி | A Tamil Nadu Property Game</title>
 <meta name="description" content="A free Tamil Nadu–themed property board game. Roll the dice, buy Marina Beach and Madurai, collect rent, and become the Mudalali! 2–4 players, pass and play.">
@@ -481,6 +482,10 @@ details.rules li{margin-bottom:4px}
       <details class="rules">
         <summary>Disclaimer</summary>
         <p style="margin-top:8px">This is a free, AI-generated game made for fun. It is intended to demonstrate what AI can create and comes with no guarantees regarding accuracy, completeness, or quality. The Tamil Nadu places, landmarks, and organisation names appearing in the game are included purely for entertainment and gameplay. No offence, endorsement, or representation is intended. All rights to names, logos, and trademarks belong to their respective owners.</p>
+      </details>
+      <details class="rules">
+        <summary>Privacy &amp; analytics</summary>
+        <p style="margin-top:8px">Mudalali uses Google Analytics to count anonymous visits to the live site — nothing about your game (players, moves, purchases, or progress) is ever collected or sent anywhere. It only runs on the live site (never while testing locally), waits until the game has fully loaded, and skips itself automatically if you're offline or your browser sends a Do Not Track or Global Privacy Control signal. Google sets its own first-party cookies to measure traffic; see <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google's privacy policy</a> for details. Mudalali's full source is open on <a href="https://github.com/venkatarangan/mudalali" target="_blank" rel="noopener">GitHub</a>.</p>
       </details>
     </div>
   </div>
@@ -1382,6 +1387,77 @@ document.getElementById('bigStart').addEventListener('click', ()=>{
   panel.scrollIntoView({behavior:'smooth', block:'start'});
   panel.classList.remove('pulse'); void panel.offsetWidth; panel.classList.add('pulse');
 });
+
+/* ================= ANALYTICS =================
+   Counts visits only. Never touches game state. Any failure here is
+   swallowed silently — gameplay must never depend on this succeeding.
+   See the "Privacy & analytics" section above for what this does. */
+(function(){
+  if (window.__mudalaliAnalyticsStarted) return;
+  window.__mudalaliAnalyticsStarted = true;
+
+  var GA_ID = 'G-5J9K187RC7';
+  var PROD_HOST = 'mudalali.mangoidiots.com';
+
+  function shouldSkip(){
+    if (location.hostname !== PROD_HOST) return true;
+    if (navigator.onLine === false) return true;
+    if (navigator.doNotTrack === '1' || window.doNotTrack === '1') return true;
+    if (navigator.globalPrivacyControl === true) return true;
+    return false;
+  }
+
+  function loadAnalytics(){
+    try {
+      if (shouldSkip()) return;
+
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){ window.dataLayer.push(arguments); }
+      window.gtag = gtag;
+
+      gtag('consent', 'default', {
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+        analytics_storage: 'granted'
+      });
+
+      var script = document.createElement('script');
+      script.async = true;
+      script.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
+      script.onerror = function(){
+        try { script.parentNode && script.parentNode.removeChild(script); } catch(e){}
+      };
+      document.head.appendChild(script);
+
+      gtag('js', new Date());
+      gtag('config', GA_ID, {
+        allow_google_signals: false,
+        allow_ad_personalization_signals: false
+      });
+    } catch (e) {
+      /* analytics must never break the game */
+    }
+  }
+
+  function scheduleAnalytics(){
+    try {
+      if ('requestIdleCallback' in window) {
+        requestIdleCallback(loadAnalytics, { timeout: 3000 });
+      } else {
+        setTimeout(loadAnalytics, 1500);
+      }
+    } catch (e) {
+      setTimeout(loadAnalytics, 1500);
+    }
+  }
+
+  if (document.readyState === 'complete') {
+    scheduleAnalytics();
+  } else {
+    window.addEventListener('load', scheduleAnalytics, { once: true });
+  }
+})();
 </script>
 </body>
 </html>

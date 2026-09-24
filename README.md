@@ -18,6 +18,18 @@ A free, single-page Monopoly-style board game themed around Tamil Nadu — roll 
 
 Everything — markup, CSS, and game logic — lives in [`index.html`](index.html). There's no framework, bundler, or server-side component; the whole game is one static file plus two images (favicon and social-preview card).
 
+## Privacy & analytics
+
+On the live site (mudalali.mangoidiots.com), the game quietly counts anonymous visits using Google Analytics (GA4) — just to get a sense of how many people are playing. It's kept out of your way on purpose:
+
+- Loads only on the production site, never on localhost or test/preview builds
+- Waits until the game has fully loaded, then loads during idle time so it never competes with gameplay
+- Skips itself entirely if you're offline, or if your browser sends a Do Not Track or Global Privacy Control signal
+- Never sees any game data — players, moves, purchases, progress all stay on your device
+- Google sets its own first-party cookies to measure traffic; see [Google's privacy policy](https://policies.google.com/privacy) for details
+
+The in-game "Privacy & analytics" section (next to "How to play") covers the same ground for players. See [`index.html`](index.html) for the implementation.
+
 ## Credits
 
 Generated with Claude Fable 5 AI. See [`MUDALALI_PROMPTS.md`](MUDALALI_PROMPTS.md) for the full prompt history behind how the game was built.
